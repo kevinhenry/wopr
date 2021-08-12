@@ -2,17 +2,16 @@ from io import StringIO
 import re
 
 print(
-    """Welcome to your Madlib Game! You will be provided with a series of prompts to enter a word that satisfies the requested word type. After you've answered all the promps, we'll use your words in a special story for you.
+    """> Welcome to prompt - We help you by checking availability of your items at the following stores:
+[BBY]Best Buy, [NWE]Newegg, [FOT]Footlocker
 
-Just a reminder:
-- adjectives are descriptive words
-- names should be a capitalized first name
-- nouns are people, places, and things
-- plural nouns are more than one of a noun
-- verbs are action words
-- past tense verbs are actions that took place in the past
+> 1. Search for the item at one of the stores listed above.
+  2. Copy the URL from that search.
+  3. At the prompt, type the [store code], [search result URL for your item] and press [Enter]
 
-Here we go!
+> [store code], [Search Result URL] <Enter>
+
+> Searching…!
 """
 )
 
@@ -55,10 +54,10 @@ def merge(strip, res):
 
 
 def output():
-    stripped, prompts = parse_template(read_template("assets/game_template.txt"))
+    stripped, prompts = parse_template(read_template("../assets/game_template.txt"))
 
     res = user_prompt(prompts)
-    f = open("assets/madlib.txt", "w")
+    f = open("../assets/madlib.txt", "w")
     f.write(merge(stripped, res))
     f.close()
     print(merge(stripped, res))
