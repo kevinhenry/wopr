@@ -1,8 +1,15 @@
 from io import StringIO
-import re
+from pyfiglet import Figlet
+import re, click
+import requests
+from requests.models import Response
+
+
+f = Figlet(font="slant")
+print(f.renderText(">  prompt"))
 
 print(
-    """> Welcome to prompt - We help you by checking availability of your items at the following stores:
+    """> Welcome! We help you by checking availability of your items at the following stores:
 [BBY]Best Buy, [NWE]Newegg, [FOT]Footlocker
 
 > 1. Search for the item at one of the stores listed above.
@@ -16,125 +23,91 @@ print(
 )
 
 
-def read_template(path):
-    with open(path) as text:
-        contents = text.read()
-        stripped_contents = contents.strip()
-        return stripped_contents
+@click.group()
+def main():
+    """
+    Simple CLI for querying
+    """
+    pass
 
 
-def parse_template(text):
-    new = tuple(re.findall(r"\{(.*?)\}", text))
-    length = len(new)
-    for i in range(0, length):
-        if i == 0:
-            print(i)
-            new_text = text.replace(new[i], "")
-        else:
-            new_text = new_text.replace(new[i], "")
-    return new_text, new
+@main.command()
+@click.argument("query")
+def search(query):
+    """This search query from YouTube Videos"""
+    url_format = "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q={}&type=video&key=AIzaSyAUuEmNYCYQcxsjztXWU14N5uqhW0lThD4"
+    # url_format = "https://googleapis.com/books/v1/volumes"
+    query = "+".join(query.split())
+
+    query_params = {"q": query}
+
+    response = requests.get(url_format, params=query_params)
+
+    click.echo(response.json()["items"])
 
 
-def user_prompt(words):
-    print("Please type a response to the prompt and press [ENTER]")
-    responses = []
-    for word in words:
-        responses.append(input(f"Type (a/an) {word}: "))
-    return responses
+@main.command()
+@click.argument("id")
+def get(id):
+    api_key = "AIzaSyAUuEmNYCYQcxsjztXWU14N5uqhW0lThD4"
+    """This will return information about videos based upon your query"""
+    url_format = "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q={}&type=video&key=AIzaSyAUuEmNYCYQcxsjztXWU14N5uqhW0lThD4"
+    # url_format = "https://www.googleapis.com/books/v1/volumes/{}"
+    click.echo(id)
+
+    response = requests.get(url_format.format(id))
+
+    click.echo(response.json())
 
 
-def merge(strip, res):
-    length = len(res)
-    for i in range(0, length):
-        if i == 0:
-            story = strip.replace("{}", res[i], 1)
-        else:
-            story = story.replace("{}", res[i], 1)
-    return story
+if __name__ == "__main__":
+    main()
+
+# def read_template(path):
+#     with open(path) as text:
+#         contents = text.read()
+#         stripped_contents = contents.strip()
+#         return stripped_contents
 
 
-def output():
-    stripped, prompts = parse_template(read_template("../assets/game_template.txt"))
+# def parse_template(text):
+#     new = tuple(re.findall(r"\{(.*?)\}", text))
+#     length = len(new)
+#     for i in range(0, length):
+#         if i == 0:
+#             print(i)
+#             new_text = text.replace(new[i], "")
+#         else:
+#             new_text = new_text.replace(new[i], "")
+#     return new_text, new
 
-    res = user_prompt(prompts)
-    f = open("../assets/madlib.txt", "w")
-    f.write(merge(stripped, res))
-    f.close()
-    print(merge(stripped, res))
+
+# def user_prompt(words):
+#     print("Please type a response to the prompt and press [ENTER]")
+#     responses = []
+#     for word in words:
+#         responses.append(input(f"Type (a/an) {word}: "))
+#     return responses
 
 
-output()
+# def merge(strip, res):
+#     length = len(res)
+#     for i in range(0, length):
+#         if i == 0:
+#             story = strip.replace("{}", res[i], 1)
+#         else:
+#             story = story.replace("{}", res[i], 1)
+#     return story
 
 
-# Following is working code...
+# def output():
+#     stripped, prompts = parse_template(read_template("../assets/hitlist_template.txt"))
 
-# """Mad Libs"""
-# """Mad Lib Intro"""
+#     res = user_prompt(prompts)
+#     f = open("../assets/output.txt", "w")
+#     f.write(merge(stripped, res))
+#     f.close()
+#     print(merge(stripped, res))
 
-# STORY = "I the %s and %s %s have %s %s's %s sister and plan to steal her %s %s! What are a %s and backpacking %s to do? Before you can help %s, you'll have to collect the %s %s and %s %s that open up the %s worlds connected to A %s Lair. There are %s %s and %s %s in the game, along with hundreds of other goodies for you to find."
 
-# print(
-#     """Welcome to this Madlib story. You will be provided with a series of prompts to enter a word that satisfies the requested word type. After you've answered all the promps, we'll use your words in a special story for you.
-
-# Just a reminder:
-# - adjectives are descriptive words
-# - names should be a capitalized first name
-# - nouns are people, places, and things
-# - plural nouns are more than one of a noun
-# - verbs are action words
-# - past tense verbs are actions that took place in the past
-
-# Here we go!
-# """
-# )
-# print()
-
-# adjective1 = input("Write an adjective: ")
-# adjective2 = input("Write an adjective: ")
-# fName1 = input("Enter a first name: ")
-# pastTenseVerb = input("Input a verb: ")
-# fName2 = input("Enter a first name: ")
-# adjective3 = input("Write an adjective: ")
-# adjective4 = input("Write an adjective: ")
-# pluralNoun1 = input("Input a plural noun: ")
-# largeAnimal = input("A large animial: ")
-# smallAnimal = input("A small animial: ")
-# girlName = input("Enter a girl's name: ")
-# adjective5 = input("Write an adjective: ")
-# pluralNoun2 = input("Input a plural noun: ")
-# adjective6 = input("Write an adjective: ")
-# pluralNoun3 = input("Input a plural noun: ")
-# number50 = input("Input a number between 1 and 50: ")
-# fName3 = input("Enter a first name: ")
-# number1 = input("Input a number: ")
-# pluralNoun4 = input("Input a plural noun: ")
-# number2 = input("Input a number: ")
-# pluralNoun5 = input("Input a plural noun: ")
-
-# print()
-# print(
-#     STORY
-#     % (
-#         adjective1,
-#         adjective2,
-#         fName1,
-#         pastTenseVerb,
-#         fName2,
-#         adjective1,
-#         adjective2,
-#         pluralNoun1,
-#         largeAnimal,
-#         smallAnimal,
-#         girlName,
-#         adjective3,
-#         pluralNoun2,
-#         adjective4,
-#         pluralNoun3,
-#         number50,
-#         fName3,
-#         number1,
-#         pluralNoun4,
-#         number2,
-#         pluralNoun5,
-#     )
-# )
+# output()
